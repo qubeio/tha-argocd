@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 7.0.0
+    chart: grafana
+    helm:
+      parameters:
+        - name: service.type
+          value: "ClusterIP"
+        - name: ingress.enabled
+          value: "true"
+        - name: ingress.ingressClassName
+          value: "traefik"
+        - name: ingress.hosts[0]
+          value: "grafana.test"
+        - name: adminPassword
+          value: "admin"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fleet-manager
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: fleet-manager
+  server: https://10.100.0.2:6443
+  config: |
+    {
+      "tlsClientConfig": {
+        "insecure": false,
+        "caData": "",
+        "certData": "",
+        "keyData": ""
+      }
+    }

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-install
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/argoproj/argo-helm
+    targetRevision: 7.7.8
+    chart: argo-cd
+    helm:
+      parameters:
+        - name: server.service.type
+          value: "ClusterIP"
+        - name: server.service.port
+          value: "80"
+        - name: server.ingress.enabled
+          value: "true"
+        - name: server.ingress.ingressClassName
+          value: "traefik"
+        - name: server.ingress.hosts[0]
+          value: "argocd.test"
+        - name: server.ingress.tls[0].secretName
+          value: "argocd-server-tls"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

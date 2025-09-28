@@ -1,0 +1,25 @@
+# Fleet Manager Cluster Applications
+
+This directory contains ArgoCD Application manifests for managing the fleet-manager cluster.
+
+## Structure
+
+- `applications/` - ArgoCD Application manifests
+- `clusters/` - Cluster-specific configurations
+- `projects/` - ArgoCD Project definitions
+
+## Fleet Manager Applications
+
+The fleet-manager cluster is the control plane cluster that manages other clusters in the fleet.
+
+### Applications
+
+- **ArgoCD**: GitOps continuous delivery tool
+- **Grafana**: Monitoring and observability dashboard (via Helm chart)
+- **Prometheus**: Metrics collection and monitoring
+- **Traefik**: Ingress controller and load balancer
+
+### Files
+
+- `argocd-install.yaml` - ArgoCD installation via Helm chart
+- `grafana.yaml` - ArgoCD Application for Grafana (using Grafana Helm chart)
