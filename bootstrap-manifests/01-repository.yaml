@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitea-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  type: git
+  url: http://gitea.test/andreas/argo.git
+  name: gitea-argo-repo
+  # Add insecure flag for internal HTTP Git server
+  insecure: "true"
+

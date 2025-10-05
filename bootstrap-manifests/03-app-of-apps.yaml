@@ -3,6 +3,9 @@ kind: Application
 metadata:
   name: fleet-manager-app-of-apps
   namespace: argocd
+  # Ensure this application persists even if removed from Git
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: fleet-manager
   source:
@@ -10,7 +13,9 @@ spec:
     targetRevision: HEAD
     path: applications/fleet-manager
     directory:
+      # Exclude the app-of-apps itself to prevent circular reference
       include: "*.yaml"
+      exclude: "app-of-apps.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -20,3 +25,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+

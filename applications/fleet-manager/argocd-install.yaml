@@ -3,26 +3,51 @@ kind: Application
 metadata:
   name: argocd-install
   namespace: argocd
+  # Prevent deletion of ArgoCD itself
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: fleet-manager
   source:
-    repoURL: https://github.com/argoproj/argo-helm
+    repoURL: https://argoproj.github.io/argo-helm
     targetRevision: 7.7.8
     chart: argo-cd
     helm:
-      parameters:
-        - name: server.service.type
-          value: "ClusterIP"
-        - name: server.service.port
-          value: "80"
-        - name: server.ingress.enabled
-          value: "true"
-        - name: server.ingress.ingressClassName
-          value: "traefik"
-        - name: server.ingress.hosts[0]
-          value: "argocd.test"
-        - name: server.ingress.tls[0].secretName
-          value: "argocd-server-tls"
+      valuesObject:
+        server:
+          service:
+            type: ClusterIP
+            port: 80
+          insecure: true
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            hosts:
+              - argocd.test
+            tls: []
+        configs:
+          cm:
+            url: http://argocd.test
+            application.instanceLabelKey: argocd.argoproj.io/instance
+          secret:
+            # Admin password: admin123 (bcrypt hashed)
+            argocdServerAdminPassword: $2a$10$dgzMusvV67nY0NU3A/eQvOG2Pw6WplJ6p/h1hrR8E.fAGv8cA7Axy
+            argocdServerAdminPasswordMtime: "2025-10-05T00:00:00Z"
+          params:
+            server.insecure: true
+          rbac:
+            policy.default: role:readonly
+            policy.csv: |
+              p, role:admin, applications, *, */*, allow
+              p, role:admin, clusters, *, *, allow
+              p, role:admin, repositories, *, *, allow
+              p, role:admin, certificates, *, *, allow
+              p, role:admin, projects, *, *, allow
+              p, role:admin, accounts, *, *, allow
+              p, role:admin, gpgkeys, *, *, allow
+              p, role:admin, logs, *, *, allow
+              p, role:admin, exec, *, *, allow
+              g, argocd-admins, role:admin
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -32,3 +57,18 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+    # Add retry logic for reliability
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  # Ignore differences in secrets that ArgoCD manages itself
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: argocd-secret
+      jsonPointers:
+        - /data
