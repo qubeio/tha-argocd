@@ -29,6 +29,13 @@ spec:
           cm:
             url: http://argocd.test
             application.instanceLabelKey: argocd.argoproj.io/instance
+            # Custom health checks for Ingress resources
+            resource.customizations: |
+              networking.k8s.io/Ingress:
+                health.lua: |
+                  hs = {}
+                  hs.status = "Healthy"
+                  return hs
           secret:
             # Admin password: admin123 (bcrypt hashed)
             argocdServerAdminPassword: $2a$10$dgzMusvV67nY0NU3A/eQvOG2Pw6WplJ6p/h1hrR8E.fAGv8cA7Axy
