@@ -27,7 +27,8 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 ### Cluster Configuration
 
 The fleet-manager cluster is configured with:
-- **API Server**: https://10.100.0.2:6443
+
+- **API Server**: <https://10.100.0.2:6443>
 - **Network**: 10.100.0.0/16 (homelab network)
 - **Ingress**: Traefik with hostname-based routing
 
@@ -37,3 +38,5 @@ The fleet-manager cluster is configured with:
 2. **Configure Access**: Set up ingress and authentication
 3. **Register Cluster**: Add the fleet-manager cluster to ArgoCD
 4. **Deploy Applications**: Deploy the fleet-manager applications
+
+s
