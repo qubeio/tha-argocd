@@ -8,16 +8,23 @@ This repository contains the GitOps configuration for managing the Thanos multi-
 argo/
 ├── applications/              # ArgoCD Application manifests
 │   └── fleet-manager/         # Fleet manager cluster applications
+│       ├── app-of-apps.yaml       # App-of-apps Application
 │       ├── argocd-install.yaml    # ArgoCD self-management
-│       └── grafana.yaml           # Grafana monitoring
-├── bootstrap-manifests/       # Initial bootstrap manifests
-│   ├── 01-repository.yaml     # Git repository connection
-│   ├── 02-project.yaml        # AppProject definition
-│   └── 03-app-of-apps.yaml    # App-of-apps Application
-├── clusters/                  # Cluster configurations (unused)
-├── projects/                  # Project definitions (migrated to bootstrap)
-├── repositories/              # Repository configs (migrated to bootstrap)
-├── BOOTSTRAP.md              # Detailed bootstrap documentation
+│       ├── fleet-manager-project.yaml # AppProject definition
+│       ├── grafana.yaml           # Grafana monitoring
+│       ├── metallb.yaml           # MetalLB LoadBalancer
+│       ├── metallb-config.yaml    # MetalLB configuration
+│       ├── repository-secret.yaml # Git repository connection
+│       └── traefik.yaml           # Traefik ingress controller
+├── clusters/                  # Cluster configurations
+│   └── fleet-manager.yaml     # Fleet manager cluster config
+├── docs/                     # Documentation
+│   ├── CHANGES.md            # Change log
+│   ├── GITOPS-INFRASTRUCTURE.md # Infrastructure docs
+│   └── TESTING.md            # Testing documentation
+├── manifests/                # Raw Kubernetes manifests
+│   ├── metallb/              # MetalLB configuration
+│   └── traefik/              # Traefik configuration
 └── README.md                 # This file
 ```
 
@@ -27,10 +34,10 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 
 ### Applications
 
-- **ArgoCD**: GitOps continuous delivery tool (self-managed.)
-- **Grafana**: Monitoring and observability dashboard.
-- **Traefik**: Ingress controller and load balancer (pre-installed)
-- **MetalLB**: LoadBalancer service provider (pre-installed)
+- **ArgoCD**: GitOps continuous delivery tool (self-managed)
+- **Grafana**: Monitoring and observability dashboard
+- **Traefik**: Ingress controller and load balancer
+- **MetalLB**: LoadBalancer service provider
 
 ### Cluster Configuration
 
@@ -68,20 +75,20 @@ python thanos-cli.py bootstrap-argocd
 This installs:
 
 1. ArgoCD via Helm with initial configuration
-2. Fleet Manager Bootstrap Application (manages ArgoCD Helm chart)
-3. GitOps Bootstrap Application (connects to this Git repository.)
+2. Applies bootstrap manifests directly from `applications/fleet-manager/`
+3. Establishes GitOps connectivity to this repository
 
 ### Stage 3: Self-Management (Automatic)
 
 Once bootstrapped, ArgoCD automatically:
 
-1. Connects to GitHub repository (`https://github.com/qubeio/tha-argocd.git`)
+1. Connects to Gitea repository (`http://gitea.test/andreas/argo.git`)
 2. Creates the `fleet-manager` AppProject
 3. Deploys the app-of-apps Application
 4. Syncs all applications from `applications/fleet-manager/`
 5. Manages its own installation via `argocd-install.yaml`
 
-See [BOOTSTRAP.md](./BOOTSTRAP.md) for detailed architecture and troubleshooting..
+See [docs/GITOPS-INFRASTRUCTURE.md](./docs/GITOPS-INFRASTRUCTURE.md) for detailed architecture and troubleshooting.
 
 ## Making Changes
 
@@ -110,7 +117,7 @@ git push
 - **ArgoCD UI**: <http://argocd.test>
 - **Username**: admin
 - **Password**: admin123 (configured in `argocd-install.yaml`)
-- **Git Repository**: <https://github.com/qubeio/tha-argocd.git>
+- **Git Repository**: <http://gitea.test/andreas/argo.git>
 - **Namespace**: argocd
 - There is a helper in the thanos-cli to set credentials for argocd-cli too.
 
@@ -120,13 +127,17 @@ git push
 
 Contains ArgoCD Application manifests for the fleet-manager cluster. Each file defines one application to be deployed.
 
-### bootstrap-manifests/
+### clusters/
 
-Contains the core manifests that establish GitOps connectivity. These are synced by the `gitops-bootstrap` Application created during initial bootstrap.
+Contains cluster-specific configurations for the fleet-manager cluster.
 
-### clusters/ & projects/ & repositories/
+### docs/
 
-Legacy directories - their contents have been migrated to `bootstrap-manifests/` for better organization.
+Contains documentation including change logs, infrastructure details, and testing guides.
+
+### manifests/
+
+Contains raw Kubernetes manifests for MetalLB and Traefik configurations that are referenced by ArgoCD Applications.
 
 ## Key Features
 
