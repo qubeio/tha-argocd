@@ -28,7 +28,7 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 ### Applications
 
 - **ArgoCD**: GitOps continuous delivery tool (self-managed.)
-- **Grafana**: Monitoring and observability dashboard
+- **Grafana**: Monitoring and observability dashboard.
 - **Traefik**: Ingress controller and load balancer (pre-installed)
 - **MetalLB**: LoadBalancer service provider (pre-installed)
 
