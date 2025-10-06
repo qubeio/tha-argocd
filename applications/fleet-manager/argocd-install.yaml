@@ -13,6 +13,7 @@ spec:
     targetRevision: 7.7.8
     chart: argo-cd
     helm:
+      releaseName: argocd-install
       valuesObject:
         server:
           service:
@@ -65,6 +66,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - Replace=true
     # Add retry logic for reliability
     retry:
       limit: 5
