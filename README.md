@@ -141,4 +141,4 @@ Legacy directories - their contents have been migrated to `bootstrap-manifests/`
 1. **Add more applications** by creating new files in `applications/fleet-manager/`
 2. **Configure monitoring** by editing `grafana.yaml`
 3. **Set up additional clusters** and add them to ArgoCD
-4. **Implement GitOps workflows** for your development teams
+4. **Implement GitOps workflows** for your development teams.
