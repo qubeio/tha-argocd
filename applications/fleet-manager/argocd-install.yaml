@@ -66,6 +66,8 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - Replace=true
+      # Skip Helm hooks to prevent re-running init jobs when taking over existing install
+      - SkipHooks=true
     # Add retry logic for reliability
     retry:
       limit: 5
