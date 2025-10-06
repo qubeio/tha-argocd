@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: homelab-lb-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 10.100.200.50-10.100.200.70
+
+

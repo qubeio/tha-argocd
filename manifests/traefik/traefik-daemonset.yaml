@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-controller
+  namespace: traefik
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: traefik-controller
+rules:
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "secrets", "pods", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "ingressclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: traefik-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-controller
+subjects:
+  - kind: ServiceAccount
+    name: traefik-controller
+    namespace: traefik
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: traefik
+  namespace: traefik
+  labels:
+    app: traefik
+spec:
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-controller
+      # Run with cluster networking; access via Service (LoadBalancer)
+      containers:
+        - name: traefik
+          image: traefik:v3.1
+          args:
+            - "--api.dashboard=true"
+            - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--ping=true"
+            - "--providers.kubernetesingress=true"
+            - "--providers.kubernetesingress.ingressclass=traefik"
+            - "--entrypoints.traefik.address=:9000"
+            - "--api.insecure=true"
+          ports:
+            - name: web
+              containerPort: 80
+            - name: websecure
+              containerPort: 443
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
