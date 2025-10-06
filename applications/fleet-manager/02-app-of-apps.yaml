@@ -13,9 +13,9 @@ spec:
     targetRevision: HEAD
     path: applications/fleet-manager
     directory:
-      # Exclude the app-of-apps itself to prevent circular reference
+      # Only include application manifests, exclude bootstrap resources
       include: "*.yaml"
-      exclude: "app-of-apps.yaml"
+      exclude: "{00-*,01-*,02-*}"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
