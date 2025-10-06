@@ -69,7 +69,7 @@ This installs:
 
 1. ArgoCD via Helm with initial configuration
 2. Fleet Manager Bootstrap Application (manages ArgoCD Helm chart)
-3. GitOps Bootstrap Application (connects to this Git repository)
+3. GitOps Bootstrap Application (connects to this Git repository.)
 
 ### Stage 3: Self-Management (Automatic)
 
