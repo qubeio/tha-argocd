@@ -81,7 +81,7 @@ Once bootstrapped, ArgoCD automatically:
 4. Syncs all applications from `applications/fleet-manager/`
 5. Manages its own installation via `argocd-install.yaml`
 
-See [BOOTSTRAP.md](./BOOTSTRAP.md) for detailed architecture and troubleshooting.
+See [BOOTSTRAP.md](./BOOTSTRAP.md) for detailed architecture and troubleshooting..
 
 ## Making Changes
 
