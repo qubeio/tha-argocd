@@ -82,7 +82,7 @@ This installs:
 
 Once bootstrapped, ArgoCD automatically:
 
-1. Connects to Gitea repository (`http://gitea.test/andreas/argo.git`)
+1. Connects to GitHub repository (`https://github.com/qubeio/tha-argocd.git`)
 2. Creates the `fleet-manager` AppProject
 3. Deploys the app-of-apps Application
 4. Syncs all applications from `applications/fleet-manager/`
@@ -117,7 +117,7 @@ git push
 - **ArgoCD UI**: <http://argocd.test>
 - **Username**: admin
 - **Password**: admin123 (configured in `argocd-install.yaml`)
-- **Git Repository**: <http://gitea.test/andreas/argo.git>
+- **Git Repository**: <https://github.com/qubeio/tha-argocd.git>
 - **Namespace**: argocd
 - There is a helper in the thanos-cli to set credentials for argocd-cli too.
 
