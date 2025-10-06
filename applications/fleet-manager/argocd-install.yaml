@@ -28,6 +28,9 @@ spec:
             ingressClassName: traefik
             hosts:
               - argocd.test
+            paths:
+              - /
+            pathType: Prefix
             tls: []
         configs:
           cm:
