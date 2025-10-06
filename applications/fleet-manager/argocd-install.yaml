@@ -13,7 +13,11 @@ spec:
     targetRevision: 7.7.8
     chart: argo-cd
     helm:
+      skipCrds: false
       valuesObject:
+        # Disable redis secret init since it was created by initial Helm install
+        redisSecretInit:
+          enabled: false
         server:
           service:
             type: ClusterIP
