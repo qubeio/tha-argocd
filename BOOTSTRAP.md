@@ -1,97 +1,90 @@
 # ArgoCD Self-Management Bootstrap
 
-This document explains how ArgoCD is configured to manage itself via GitOps.
+This document explains how ArgoCD is configured to manage itself via GitOps using a single source of truth pattern.
 
 ## Architecture
 
-The bootstrap process follows a multi-stage approach:
+The bootstrap process follows a simplified two-stage approach:
 
-### Stage 1: Initial Installation (thanos-cli.py)
-The `thanos-cli.py` script performs the initial ArgoCD installation:
+### Stage 1: Bootstrap (thanos-cli.py)
+The `thanos-cli.py` script applies all manifests directly from the argo GitOps repository:
 
-1. **Install ArgoCD via Helm** (`bootstrap/argocd-bootstrap-values.yaml`)
-   - Sets up basic ArgoCD configuration
-   - Configures ingress, authentication, and RBAC
-   - Creates the ArgoCD namespace and core components
-
-2. **Apply Fleet Manager Bootstrap** (`bootstrap/fleet-manager-bootstrap.yaml`)
-   - Creates an Application that manages the ArgoCD Helm installation
-   - Ensures ArgoCD configuration is version-controlled
-
-3. **Apply GitOps Bootstrap** (`bootstrap/gitops-bootstrap.yaml`)
-   - Creates an Application that syncs from the `bootstrap-manifests/` directory
-   - This Application sets up the GitOps repository connection
-
-### Stage 2: GitOps Repository Connection (bootstrap-manifests/)
-The gitops-bootstrap Application syncs the following manifests:
-
-1. **Repository Secret** (`01-repository.yaml`)
+1. **Repository Secret** (`repository-secret.yaml`)
    - Configures connection to Gitea repository
    - URL: `http://gitea.test/andreas/argo.git`
    - Enables ArgoCD to pull from the GitOps repo
 
-2. **AppProject** (`02-project.yaml`)
+2. **AppProject** (`fleet-manager-project.yaml`)
    - Creates the `fleet-manager` project
    - Defines allowed source repositories (Helm charts, Gitea)
    - Sets up RBAC and destination permissions
 
-3. **App-of-Apps** (`03-app-of-apps.yaml`)
+3. **App-of-Apps** (`app-of-apps.yaml`)
    - Creates the main Application that manages all other applications
    - Points to `applications/fleet-manager/` directory
-   - Excludes itself to prevent circular references
+   - Excludes bootstrap manifests to prevent circular references
 
-### Stage 3: Self-Management (applications/fleet-manager/)
-Once the app-of-apps is created, it manages:
-
-1. **ArgoCD Installation** (`argocd-install.yaml`)
+4. **ArgoCD Installation** (`argocd-install.yaml`)
    - Manages ArgoCD's own Helm chart
-   - Contains full configuration (passwords, RBAC, ingress)
-   - ArgoCD now manages its own installation!
+   - Contains full configuration (passwords, RBAC, ingress, health checks)
+   - ArgoCD will manage its own installation via this Application
 
-2. **Other Applications** (`grafana.yaml`, etc.)
-   - Additional applications for the fleet-manager cluster
-   - All managed via GitOps
+### Stage 2: Self-Management (GitOps)
+Once ArgoCD is running, it syncs and sees the same manifests in Git:
+
+1. **ArgoCD Self-Management**
+   - ArgoCD detects the same `argocd-install.yaml` Application in Git
+   - Takes over management of its own installation
+   - No conflicts because it's the same Application definition
+
+2. **Application Management**
+   - The app-of-apps manages all other applications (`grafana.yaml`, etc.)
+   - All changes go through Git as the single source of truth
 
 ## Bootstrap Flow
 
 ```
-thanos-cli.py
+thanos-cli.py bootstrap-argocd
     │
-    ├─> Helm install ArgoCD (initial deployment)
-    │
-    ├─> Apply fleet-manager-bootstrap.yaml
-    │   └─> Creates Application to manage ArgoCD Helm chart
-    │
-    └─> Apply gitops-bootstrap.yaml
-        └─> Creates Application to sync bootstrap-manifests/
+    ├─> Apply repository-secret.yaml (Git repo connection)
+    ├─> Apply fleet-manager-project.yaml (AppProject)
+    ├─> Apply app-of-apps.yaml (App-of-apps)
+    └─> Apply argocd-install.yaml (ArgoCD via Helm)
+        │
+        └─> ArgoCD deploys and becomes ready
             │
-            ├─> 01-repository.yaml (Git repo connection)
-            ├─> 02-project.yaml (AppProject)
-            └─> 03-app-of-apps.yaml
-                └─> Syncs applications/fleet-manager/
+            └─> ArgoCD syncs from Git and sees the same manifests
+                │
+                ├─> argocd-install.yaml (ArgoCD self-management!)
+                └─> app-of-apps manages other applications
                     │
-                    ├─> argocd-install.yaml (ArgoCD self-management!)
-                    └─> Other applications...
+                    └─> grafana.yaml, etc.
 ```
 
 ## Key Features
 
+### Single Source of Truth
+- All manifests are in `applications/fleet-manager/`
+- Bootstrap applies the same manifests that ArgoCD will manage
+- No conflicts because bootstrap and GitOps use identical Application definitions
+
 ### Circular Reference Prevention
-- The app-of-apps excludes `app-of-apps.yaml` from its sync directory
-- This prevents ArgoCD from trying to manage the app-of-apps Application recursively
+- The app-of-apps excludes bootstrap manifests from its sync directory
+- Bootstrap manifests: `repository-secret.yaml`, `fleet-manager-project.yaml`, `app-of-apps.yaml`
+- This prevents ArgoCD from trying to manage its own bootstrap resources
 
 ### Self-Management
 - Once bootstrapped, ArgoCD manages its own Helm installation
 - Changes to `argocd-install.yaml` in Git will be automatically applied
-- The initial bootstrap Applications remain to ensure stability
+- True GitOps: all ArgoCD changes go through the argo repository
 
 ### Finalizers
 - Critical Applications have finalizers to prevent accidental deletion
 - Ensures ArgoCD doesn't delete itself or its management structure
 
-### Ignore Differences
-- The `argocd-install.yaml` ignores differences in ArgoCD's internal secrets
-- Prevents sync conflicts with secrets ArgoCD manages itself
+### Health Checks
+- Custom health checks for Ingress resources (Traefik compatibility)
+- Prevents applications from showing as "Progressing" indefinitely
 
 ## Making Changes
 
@@ -105,10 +98,11 @@ thanos-cli.py
 2. Commit and push to Gitea
 3. The app-of-apps will automatically deploy it
 
-### To modify bootstrap behavior:
-1. Edit files in `bootstrap-manifests/`
+### To modify bootstrap manifests:
+1. Edit files in `applications/fleet-manager/` (repository-secret.yaml, fleet-manager-project.yaml, app-of-apps.yaml)
 2. Commit and push to Gitea
-3. The gitops-bootstrap Application will sync the changes
+3. For existing clusters, manually apply changes with `kubectl apply -f`
+4. For new clusters, the bootstrap process will use the updated manifests
 
 ## Access Information
 
@@ -123,19 +117,21 @@ thanos-cli.py
 Check the repository connection:
 ```bash
 kubectl get secret -n argocd gitea-repo
-kubectl describe application -n argocd gitops-bootstrap
+kubectl describe application -n argocd argocd-install
 ```
 
 ### App-of-apps not creating applications
 Check if the AppProject exists:
 ```bash
 kubectl get appproject -n argocd fleet-manager
+kubectl describe application -n argocd fleet-manager-app-of-apps
 ```
 
 ### ArgoCD installation not syncing
 Check for sync differences:
 ```bash
 kubectl describe application -n argocd argocd-install
+kubectl get application -n argocd
 ```
 
 ## Security Considerations
