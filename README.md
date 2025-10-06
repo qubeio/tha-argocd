@@ -36,7 +36,7 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 
 The fleet-manager cluster is configured with:
 
-- **API Server**: https://10.100.200.2:6443
+- **API Server**: <https://10.100.200.2:6443>
 - **Network**: 10.100.0.0/16 (homelab network)
 - **Ingress**: Traefik with hostname-based routing
 - **LoadBalancer**: MetalLB providing IPs from 10.100.200.100-10.100.200.150
@@ -46,23 +46,27 @@ The fleet-manager cluster is configured with:
 The bootstrap process is automated via `thanos-cli.py` and follows a multi-stage approach:
 
 ### Stage 1: Infrastructure Setup
+
 ```bash
 cd /path/to/thanos
 python thanos-cli.py provision-infrastructure
 ```
 
 This creates:
+
 - Docker network (homelab)
 - Kind cluster (fleet-manager)
 - MetalLB for LoadBalancer services
 - Traefik for ingress
 
 ### Stage 2: ArgoCD Bootstrap
+
 ```bash
 python thanos-cli.py bootstrap-argocd
 ```
 
 This installs:
+
 1. ArgoCD via Helm with initial configuration
 2. Fleet Manager Bootstrap Application (manages ArgoCD Helm chart)
 3. GitOps Bootstrap Application (connects to this Git repository)
@@ -70,6 +74,7 @@ This installs:
 ### Stage 3: Self-Management (Automatic)
 
 Once bootstrapped, ArgoCD automatically:
+
 1. Connects to Gitea repository (`http://gitea.test/andreas/argo.git`)
 2. Creates the `fleet-manager` AppProject
 3. Deploys the app-of-apps Application
@@ -87,6 +92,7 @@ All changes to the cluster should be made via Git:
 3. **ArgoCD syncs automatically** (or manually via UI)
 
 ### Example: Update ArgoCD Configuration
+
 ```bash
 # Edit the ArgoCD configuration
 vim applications/fleet-manager/argocd-install.yaml
@@ -101,21 +107,25 @@ git push
 
 ## Access Information
 
-- **ArgoCD UI**: http://argocd.test
+- **ArgoCD UI**: <http://argocd.test>
 - **Username**: admin
 - **Password**: admin123 (configured in `argocd-install.yaml`)
-- **Git Repository**: http://gitea.test/andreas/argo.git
+- **Git Repository**: <http://gitea.test/andreas/argo.git>
 - **Namespace**: argocd
+- There is a helper in the thanos-cli to set credentials for argocd-cli too.
 
 ## Directory Details
 
 ### applications/fleet-manager/
+
 Contains ArgoCD Application manifests for the fleet-manager cluster. Each file defines one application to be deployed.
 
 ### bootstrap-manifests/
+
 Contains the core manifests that establish GitOps connectivity. These are synced by the `gitops-bootstrap` Application created during initial bootstrap.
 
 ### clusters/ & projects/ & repositories/
+
 Legacy directories - their contents have been migrated to `bootstrap-manifests/` for better organization.
 
 ## Key Features
@@ -124,7 +134,7 @@ Legacy directories - their contents have been migrated to `bootstrap-manifests/`
 ✅ **App-of-Apps Pattern**: All applications managed from a single repository  
 ✅ **Automated Sync**: Changes in Git are automatically applied to the cluster  
 ✅ **Secure by Default**: RBAC policies and project isolation  
-✅ **Circular Reference Prevention**: Smart exclusions prevent infinite loops  
+✅ **Circular Reference Prevention**: Smart exclusions prevent infinite loops
 
 ## Next Steps
 
