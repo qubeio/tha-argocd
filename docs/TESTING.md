@@ -5,6 +5,7 @@ This document provides step-by-step instructions for testing the ArgoCD bootstra
 ## Prerequisites
 
 Before testing, ensure:
+
 1. Docker is running
 2. `kind` is installed
 3. `kubectl` is installed
@@ -14,6 +15,7 @@ Before testing, ensure:
 ## Full Bootstrap Test
 
 ### 1. Clean Environment
+
 Start with a clean slate:
 
 ```bash
@@ -28,6 +30,7 @@ kind get clusters
 ```
 
 ### 2. Provision Infrastructure
+
 Create the base infrastructure:
 
 ```bash
@@ -42,12 +45,14 @@ kubectl get pods -n traefik
 ```
 
 Expected output:
+
 - 2 nodes (control-plane and worker) in Ready state
 - All system pods Running
 - MetalLB controller and speaker running
 - Traefik pods running
 
 ### 3. Set Up Base Services
+
 Start Gitea and other services:
 
 ```bash
@@ -60,23 +65,26 @@ dig @10.100.200.10 -p 53 gitea.test
 ```
 
 Expected output:
+
 - Gitea accessible at http://gitea.test
 - DNS resolving correctly
 
 ### 4. Prepare Git Repository
+
 Ensure the argo repository is pushed to Gitea:
 
 ```bash
 cd /home/andreas/source/repos/argo
 
 # Add the Gitea remote if not already added
-git remote add gitea http://gitea.test/andreas/argo.git
+git remote add github https://github.com/qubeio/tha-argocd.git
 
 # Push the repository
 git push gitea main
 ```
 
 ### 5. Bootstrap ArgoCD
+
 Now bootstrap ArgoCD with GitOps:
 
 ```bash
@@ -91,11 +99,13 @@ kubectl wait --for=condition=available --timeout=300s \
 ```
 
 Expected output:
+
 - ArgoCD installed
 - gitops-bootstrap Application created
 - Success message with access information
 
 ### 6. Verify Bootstrap Applications
+
 Check that the bootstrap applications are created:
 
 ```bash
@@ -108,6 +118,7 @@ kubectl get applications -n argocd
 ```
 
 ### 7. Wait for GitOps Sync
+
 The gitops-bootstrap Application will sync and create additional resources:
 
 ```bash
@@ -121,23 +132,26 @@ watch kubectl get applications -n argocd
 ```
 
 This may take 1-2 minutes as ArgoCD:
+
 1. Clones the repository
 2. Creates the AppProject
 3. Creates the app-of-apps
 4. Syncs all applications
 
 ### 8. Verify Repository Connection
+
 Check that ArgoCD connected to Gitea:
 
 ```bash
 # Check repository secret
-kubectl get secret -n argocd gitea-repo -o yaml
+kubectl get secret -n argocd github-repo -o yaml
 
 # Check ArgoCD can reach the repository
 kubectl logs -n argocd deployment/argocd-repo-server | grep gitea
 ```
 
 ### 9. Verify AppProject
+
 Check the fleet-manager project was created:
 
 ```bash
@@ -145,11 +159,13 @@ kubectl get appproject -n argocd fleet-manager -o yaml
 ```
 
 Expected output:
+
 - Project exists
 - Source repos include Gitea and Helm repos
 - Destinations allow all namespaces
 
 ### 10. Verify App-of-Apps
+
 Check the app-of-apps Application:
 
 ```bash
@@ -162,6 +178,7 @@ kubectl get application -n argocd fleet-manager-app-of-apps -o jsonpath='{.statu
 Expected output: `Synced`
 
 ### 11. Verify ArgoCD Self-Management
+
 Check that ArgoCD is managing itself:
 
 ```bash
@@ -173,12 +190,14 @@ kubectl describe application -n argocd argocd-install
 ```
 
 Expected output:
+
 - Application is Synced
 - Health status is Healthy
 - Source points to Helm chart
 - Configuration matches argocd-install.yaml
 
 ### 12. Access ArgoCD UI
+
 Open ArgoCD in your browser:
 
 ```bash
@@ -193,6 +212,7 @@ echo "Password: admin123"
 ```
 
 In the UI, verify:
+
 - All Applications are visible
 - Applications are Synced and Healthy
 - Repository connection is working
@@ -201,6 +221,7 @@ In the UI, verify:
 ## Testing Self-Management
 
 ### Test 1: Update ArgoCD Configuration
+
 Test that ArgoCD can update itself:
 
 ```bash
@@ -224,12 +245,14 @@ kubectl get application -n argocd argocd-install -w
 ```
 
 Expected behavior:
+
 - ArgoCD detects the change within ~3 minutes (default sync interval)
 - Application shows OutOfSync
 - Application automatically syncs
 - Changes are applied to ArgoCD
 
 ### Test 2: Add a New Application
+
 Test the app-of-apps pattern:
 
 ```bash
@@ -269,12 +292,14 @@ watch kubectl get applications -n argocd
 ```
 
 Expected behavior:
+
 - The app-of-apps detects the new file
 - A new Application `test-nginx` is created
 - The nginx Helm chart is deployed
 - A new namespace `test-nginx` is created
 
 Cleanup:
+
 ```bash
 # Remove the test application
 rm applications/fleet-manager/test-nginx.yaml
@@ -286,6 +311,7 @@ git push gitea main
 ```
 
 ### Test 3: Modify Bootstrap Manifests
+
 Test that bootstrap manifests can be updated:
 
 ```bash
@@ -307,6 +333,7 @@ kubectl describe application -n argocd gitops-bootstrap
 ```
 
 Expected behavior:
+
 - gitops-bootstrap detects the change
 - The AppProject is updated
 - No disruption to existing applications
@@ -314,6 +341,7 @@ Expected behavior:
 ## Troubleshooting
 
 ### Applications Stuck in Progressing
+
 ```bash
 # Check application status
 kubectl describe application -n argocd <app-name>
@@ -323,19 +351,21 @@ kubectl logs -n argocd deployment/argocd-application-controller
 ```
 
 ### Repository Connection Failed
+
 ```bash
 # Check repository secret
-kubectl get secret -n argocd gitea-repo -o yaml
+kubectl get secret -n argocd github-repo -o yaml
 
 # Check if Gitea is accessible from the cluster
 kubectl run -it --rm debug --image=alpine --restart=Never -- \
-  wget -O- http://gitea.test/andreas/argo.git/info/refs?service=git-upload-pack
+  wget -O- https://github.com/qubeio/tha-argocd.git/info/refs?service=git-upload-pack
 
 # Check ArgoCD repo server logs
 kubectl logs -n argocd deployment/argocd-repo-server
 ```
 
 ### ArgoCD Not Syncing
+
 ```bash
 # Check application controller logs
 kubectl logs -n argocd deployment/argocd-application-controller | grep ERROR
@@ -349,6 +379,7 @@ argocd app sync <app-name>
 ```
 
 ### Circular Reference Detected
+
 This shouldn't happen if configured correctly, but if it does:
 
 ```bash
@@ -385,4 +416,3 @@ python thanos-cli.py destroy
 docker ps
 kind get clusters
 ```
-

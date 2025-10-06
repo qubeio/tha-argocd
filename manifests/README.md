@@ -35,7 +35,7 @@ These manifests are deployed via ArgoCD Applications with sync waves to ensure p
 ## Source of Truth
 
 These manifests are synced from the `argo` GitOps repository:
-- Repository: `http://gitea.test/andreas/argo.git`
+- Repository: `https://github.com/qubeio/tha-argocd.git`
 - Applications defined in: `applications/fleet-manager/`
 
 ## Editing Manifests

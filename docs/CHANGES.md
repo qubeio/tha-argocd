@@ -2,7 +2,7 @@
 
 ## Summary
 
-This document describes the changes made to enable ArgoCD to manage itself via GitOps from the Gitea repository at `http://gitea.test/andreas/argo.git`.
+This document describes the changes made to enable ArgoCD to manage itself via GitOps from the GitHub repository at `https://github.com/qubeio/tha-argocd.git`.
 
 ## Problems Identified
 
@@ -26,7 +26,7 @@ Created a new directory with three core manifests:
 
 **File: `bootstrap-manifests/01-repository.yaml`** (NEW)
 - Creates Secret for Gitea repository connection
-- Enables ArgoCD to clone from `http://gitea.test/andreas/argo.git`
+- Enables ArgoCD to clone from `https://github.com/qubeio/tha-argocd.git`
 - Includes `insecure: "true"` flag for HTTP Git access
 
 **File: `bootstrap-manifests/02-project.yaml`** (NEW)

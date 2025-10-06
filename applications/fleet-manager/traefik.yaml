@@ -10,7 +10,7 @@ metadata:
 spec:
   project: fleet-manager
   source:
-    repoURL: http://gitea.test/andreas/argo.git
+    repoURL: https://github.com/qubeio/tha-argocd.git
     targetRevision: HEAD
     path: manifests/traefik
   destination:

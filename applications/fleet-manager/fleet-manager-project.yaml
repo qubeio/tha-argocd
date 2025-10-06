@@ -12,7 +12,7 @@ spec:
     - 'https://grafana.github.io/helm-charts'
     - 'https://prometheus-community.github.io/helm-charts'
     - 'https://metallb.github.io/metallb'
-    - 'http://gitea.test/andreas/argo.git'
+    - 'https://github.com/qubeio/tha-argocd.git'
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
