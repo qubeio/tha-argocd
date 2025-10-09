@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nprod1-apps
-  namespace: argocd
+  namespace: vcluster-nprod1
 spec:
   project: fleet-manager
   source:
