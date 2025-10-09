@@ -18,31 +18,18 @@ Wave 3: Traefik (Ingress Controller)
 Wave 4+: Applications (Grafana, etc.)
 ```
 
-### Why This Approach?
-
-**Before**: Infrastructure was imperatively installed via `thanos-cli.py` using kubectl/helm commands
-- ❌ Two sources of truth (CLI + Git)
-- ❌ No drift detection
-- ❌ Manual updates required
-- ❌ Not auditable
-
-**After**: All infrastructure managed via GitOps
-- ✅ Single source of truth (Git)
-- ✅ Automatic drift detection and self-healing
-- ✅ Version controlled changes
-- ✅ Full audit trail
-- ✅ Declarative updates
-
 ## Files Created
 
 ### ArgoCD Applications (argo/applications/fleet-manager/)
 
 1. **metallb.yaml** - Wave 1
+
    - Installs MetalLB via Helm chart
    - Creates metallb-system namespace
    - Provides LoadBalancer capability
 
 2. **metallb-config.yaml** - Wave 2
+
    - Applies IPAddressPool (10.100.200.50-70)
    - Applies L2Advertisement
    - Waits for Wave 1 to complete
@@ -96,7 +83,7 @@ ArgoCD processes applications in wave order:
 ```yaml
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Deploy first
+    argocd.argoproj.io/sync-wave: "1" # Deploy first
 ```
 
 - Lower wave numbers deploy first
@@ -129,14 +116,17 @@ kubectl get applications -n argocd \
 ### Expected Timeline
 
 - **Wave 1 (MetalLB)**: ~30-60 seconds
+
   - Helm chart install
   - Controller + Speaker pods ready
 
 - **Wave 2 (MetalLB Config)**: ~10-20 seconds
+
   - CRD resources applied
   - IP pool configured
 
 - **Wave 3 (Traefik)**: ~30-45 seconds
+
   - DaemonSet deployed
   - LoadBalancer IP assigned
   - Health checks passing
@@ -226,6 +216,7 @@ argocd app rollback metallb <revision-id>
 ## Next Steps
 
 Consider moving these to GitOps as well:
+
 - CoreDNS configuration
 - Network policies
 - Monitoring stack (Prometheus, Grafana)
@@ -233,4 +224,3 @@ Consider moving these to GitOps as well:
 - Backup solutions
 
 All infrastructure should be managed via GitOps for consistency!
-

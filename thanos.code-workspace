@@ -1,11 +1,14 @@
 {
-	"folders": [
-		{
-			"path": "../thanos"
-		},
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "../thanos"
+    },
+    {
+      "path": "."
+    },
+    {
+      "path": "../infraascode"
+    }
+  ],
+  "settings": {}
 }

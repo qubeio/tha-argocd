@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vcluster-prod1
+  namespace: argocd
+spec:
+  project: fleet-manager
+  source:
+    repoURL: https://charts.loft.sh
+    targetRevision: 0.20.0
+    chart: vcluster
+    helm:
+      releaseName: prod1
+      valuesObject:
+        # Sync resources from host to vcluster
+        sync:
+          nodes:
+            enabled: true
+          persistentvolumes:
+            enabled: true
+        # Enable CoreDNS for proper DNS resolution
+        coredns:
+          enabled: true
+        # Expose vcluster API server as ClusterIP (ArgoCD will connect internally)
+        service:
+          type: ClusterIP
+        # Enable vCluster to be discovered by ArgoCD
+        vcluster:
+          image: rancher/k3s:v1.28.5-k3s1
+        # Resource limits for testing
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        # Storage for vcluster
+        storage:
+          size: 5Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vcluster-prod1
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
