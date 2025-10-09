@@ -16,7 +16,7 @@ spec:
     # This will target the vcluster once it's registered
     # The vcluster will be available at: 
     # https://prod1.vcluster-prod1.svc
-    name: vcluster-prod1
+    name: prod1
   syncPolicy:
     automated:
       prune: true

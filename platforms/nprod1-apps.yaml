@@ -16,7 +16,7 @@ spec:
     # This will target the vcluster once it's registered
     # The vcluster will be available at:
     # https://nprod1.vcluster-nprod1.svc
-    name: vcluster-nprod1
+    name: nprod1
   syncPolicy:
     automated:
       prune: true
