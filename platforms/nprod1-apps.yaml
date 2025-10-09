@@ -14,16 +14,9 @@ spec:
       include: "*.yaml"
   destination:
     # This will target the vcluster once it's registered
-    # The vcluster will be available at: 
+    # The vcluster will be available at:
     # https://nprod1.vcluster-nprod1.svc
     name: vcluster-nprod1
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-  # Wait for vcluster to be ready before syncing
   syncPolicy:
     automated:
       prune: true
@@ -36,4 +29,3 @@ spec:
         duration: 30s
         factor: 2
         maxDuration: 10m
-

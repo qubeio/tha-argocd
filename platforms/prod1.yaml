@@ -7,37 +7,41 @@ spec:
   project: fleet-manager
   source:
     repoURL: https://charts.loft.sh
-    targetRevision: 0.20.0
+    targetRevision: *
     chart: vcluster
     helm:
       releaseName: prod1
       valuesObject:
-        # Sync resources from host to vcluster
+        # Control plane configuration
+        controlPlane:
+          distro:
+            k8s:
+              enabled: true
+              image:
+                registry: ghcr.io
+                repository: loft-sh/kubernetes
+                tag: v1.33.4
+                imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+        # Sync configuration - from host to vcluster
         sync:
-          nodes:
-            enabled: true
-          persistentvolumes:
-            enabled: true
-        # Enable CoreDNS for proper DNS resolution
-        coredns:
-          enabled: true
-        # Expose vcluster API server as ClusterIP (ArgoCD will connect internally)
-        service:
-          type: ClusterIP
-        # Enable vCluster to be discovered by ArgoCD
-        vcluster:
-          image: rancher/k3s:v1.28.5-k3s1
-        # Resource limits for testing
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 128Mi
-        # Storage for vcluster
+          fromHost:
+            nodes:
+              enabled: true
+            persistentVolumes:
+              enabled: true
+        # Storage configuration
         storage:
           size: 5Gi
+        # Service configuration
+        service:
+          type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: vcluster-prod1
