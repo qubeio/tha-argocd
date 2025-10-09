@@ -7,7 +7,7 @@ spec:
   project: fleet-manager
   source:
     repoURL: https://charts.loft.sh
-    targetRevision: *
+    targetRevision: "*"
     chart: vcluster
     helm:
       releaseName: prod1
