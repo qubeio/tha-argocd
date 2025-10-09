@@ -21,7 +21,6 @@ spec:
                 registry: ghcr.io
                 repository: loft-sh/kubernetes
                 tag: v1.33.4
-                imagePullPolicy: IfNotPresent
               resources:
                 limits:
                   cpu: 1000m
@@ -29,19 +28,20 @@ spec:
                 requests:
                   cpu: 100m
                   memory: 128Mi
+          # Storage configuration - moved to correct location
+          statefulSet:
+            persistence:
+              volumeClaim:
+                size: 5Gi
+          # Service configuration - moved to correct location
+          service:
+            spec:
+              type: ClusterIP
         # Sync configuration - from host to vcluster
         sync:
           fromHost:
             nodes:
               enabled: true
-            persistentVolumes:
-              enabled: true
-        # Storage configuration
-        storage:
-          size: 5Gi
-        # Service configuration
-        service:
-          type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: vcluster-prod1
