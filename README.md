@@ -10,6 +10,7 @@ argo/
 │   └── fleet-manager/         # Fleet manager cluster applications
 │       ├── app-of-apps.yaml       # App-of-apps Application
 │       ├── argocd-install.yaml    # ArgoCD self-management
+│       ├── cli-api.yaml           # CLI API external service
 │       ├── fleet-manager-project.yaml # AppProject definition
 │       ├── grafana.yaml           # Grafana monitoring
 │       ├── metallb.yaml           # MetalLB LoadBalancer
@@ -23,6 +24,7 @@ argo/
 │   ├── GITOPS-INFRASTRUCTURE.md # Infrastructure docs
 │   └── TESTING.md            # Testing documentation
 ├── manifests/                # Raw Kubernetes manifests
+│   ├── cli-api/              # CLI API external service and ingress
 │   ├── metallb/              # MetalLB configuration
 │   └── traefik/              # Traefik configuration
 └── README.md                 # This file
@@ -35,6 +37,7 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 ### Applications
 
 - **ArgoCD**: GitOps continuous delivery tool (self-managed)
+- **CLI API**: REST API for CLI command execution via Unix socket
 - **Grafana**: Monitoring and observability dashboard
 - **Traefik**: Ingress controller and load balancer
 - **MetalLB**: LoadBalancer service provider
