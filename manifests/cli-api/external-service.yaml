@@ -8,7 +8,7 @@ metadata:
     app: cli-api
 spec:
   type: ExternalName
-  externalName: cli-api.test
+  externalName: 10.100.200.13
   ports:
     - port: 8000
       targetPort: 8000
