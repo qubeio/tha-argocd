@@ -14,6 +14,7 @@ spec:
     - "https://metallb.github.io/metallb"
     - "https://github.com/qubeio/tha-argocd.git"
     - "https://charts.loft.sh"
+    - "https://charts.crossplane.io/stable"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc

@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: fleet-manager
+  source:
+    repoURL: https://charts.crossplane.io/stable
+    targetRevision: 1.15.1
+    chart: crossplane
+    helm:
+      parameters:
+        - name: installCRDs
+          value: "true"
+        - name: resourcesCrossplane.limits.cpu
+          value: "500m"
+        - name: resourcesCrossplane.limits.memory
+          value: "1Gi"
+        - name: resourcesCrossplane.requests.cpu
+          value: "100m"
+        - name: resourcesCrossplane.requests.memory
+          value: "128Mi"
+        - name: resourcesRBACManager.limits.cpu
+          value: "200m"
+        - name: resourcesRBACManager.limits.memory
+          value: "256Mi"
+        - name: resourcesRBACManager.requests.cpu
+          value: "50m"
+        - name: resourcesRBACManager.requests.memory
+          value: "64Mi"
+        - name: resourcesWebhooks.limits.cpu
+          value: "200m"
+        - name: resourcesWebhooks.limits.memory
+          value: "256Mi"
+        - name: resourcesWebhooks.requests.cpu
+          value: "50m"
+        - name: resourcesWebhooks.requests.memory
+          value: "64Mi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

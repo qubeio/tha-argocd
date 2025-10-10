@@ -15,6 +15,7 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 ### Applications
 
 - **ArgoCD**: GitOps continuous delivery tool
+- **Crossplane**: Cloud-native control plane for infrastructure management
 - **Grafana**: Monitoring and observability dashboard (via Helm chart)
 - **Prometheus**: Metrics collection and monitoring
 - **Traefik**: Ingress controller and load balancer
@@ -22,4 +23,5 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 ### Files
 
 - `argocd-install.yaml` - ArgoCD installation via Helm chart
+- `crossplane.yaml` - ArgoCD Application for Crossplane (using Crossplane Helm chart)
 - `grafana.yaml` - ArgoCD Application for Grafana (using Grafana Helm chart)

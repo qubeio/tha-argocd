@@ -8,6 +8,9 @@
     },
     {
       "path": "../infraascode"
+    },
+    {
+      "path": "../provider-template"
     }
   ],
   "settings": {}
