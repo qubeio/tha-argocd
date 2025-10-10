@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: vclusters
+  name: kind-clusters
   namespace: argocd
 spec:
   project: fleet-manager
