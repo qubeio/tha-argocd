@@ -7,10 +7,23 @@ metadata:
   labels:
     app: cli-api
 spec:
-  type: ExternalName
-  externalName: 10.100.200.13
+  type: ClusterIP
   ports:
     - port: 8000
       targetPort: 8000
       protocol: TCP
       name: http
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: cli-api-external
+  namespace: default
+  labels:
+    app: cli-api
+subsets:
+  - addresses:
+      - ip: 10.100.200.13
+    ports:
+      - port: 8000
+        name: http
