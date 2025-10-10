@@ -143,7 +143,7 @@ kubectl get applications -n argocd \
 # 1. Edit manifests in argo/manifests/
 vim argo/manifests/traefik/traefik-service.yaml
 
-# 2. Commit and push to Gitea
+# 2. Commit and push to GitHub
 cd argo
 git add manifests/
 git commit -m "Update Traefik LoadBalancer IP"

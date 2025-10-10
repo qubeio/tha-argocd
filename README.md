@@ -98,7 +98,7 @@ See [docs/GITOPS-INFRASTRUCTURE.md](./docs/GITOPS-INFRASTRUCTURE.md) for detaile
 All changes to the cluster should be made via Git:
 
 1. **Edit manifests** in this repository
-2. **Commit and push** to Gitea
+2. **Commit and push** to GitHub
 3. **ArgoCD syncs automatically** (or manually via UI)
 
 ### Example: Update ArgoCD Configuration
