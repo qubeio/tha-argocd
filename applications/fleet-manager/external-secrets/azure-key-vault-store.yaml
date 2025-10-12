@@ -12,6 +12,11 @@ spec:
     azurekv:
       # Azure Key Vault URL
       vaultUrl: "https://qubeio.vault.azure.net/"
+      # Tenant ID is required at the top level
+      tenantId:
+        name: azure-keyvault-credentials
+        key: tenantId
+        namespace: external-secrets-system
       # Authentication using service principal credentials
       authSecretRef:
         clientId:
@@ -21,10 +26,6 @@ spec:
         clientSecret:
           name: azure-keyvault-credentials
           key: clientSecret
-          namespace: external-secrets-system
-        tenantId:
-          name: azure-keyvault-credentials
-          key: tenantId
           namespace: external-secrets-system
       # Optional: Specify the secret type (defaults to "secret")
       # secretType: "secret"
