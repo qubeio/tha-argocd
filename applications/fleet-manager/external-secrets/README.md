@@ -34,6 +34,15 @@ spec:
   provider:
     akeyless:
       akeylessGWApiURL: "https://your-gateway.akeyless.io"  # Change to your gateway URL
+      authSecretRef:
+        accessIdSecretRef:
+          name: akeyless-credentials
+          key: access-id
+          namespace: external-secrets-system
+        accessKeySecretRef:
+          name: akeyless-credentials
+          key: access-key
+          namespace: external-secrets-system
 ```
 
 ### 3. Create Secrets in Akeyless
