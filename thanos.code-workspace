@@ -11,6 +11,9 @@
     },
     {
       "path": "../provider-template"
+    },
+    {
+      "path": "../provider-pizza"
     }
   ],
   "settings": {}
