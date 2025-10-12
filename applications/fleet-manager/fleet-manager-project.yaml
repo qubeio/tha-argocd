@@ -15,6 +15,7 @@ spec:
     - "https://github.com/qubeio/tha-argocd.git"
     - "https://charts.loft.sh"
     - "https://charts.crossplane.io/stable"
+    - "https://charts.external-secrets.io"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
