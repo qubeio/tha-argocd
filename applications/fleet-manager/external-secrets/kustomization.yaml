@@ -3,14 +3,14 @@ kind: Kustomization
 
 resources:
   - cluster-secret-store.yaml
-  - example-external-secret.yaml
   - azure-key-vault-store.yaml
   - azure-key-vault-example.yaml
 
 # Optional: Add common labels to all resources
-commonLabels:
-  app.kubernetes.io/part-of: external-secrets
-  app.kubernetes.io/managed-by: argocd
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: external-secrets
+      app.kubernetes.io/managed-by: argocd
 
 # Optional: Add common annotations
 commonAnnotations:
