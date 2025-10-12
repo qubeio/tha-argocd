@@ -11,6 +11,11 @@ argo/
 │       ├── app-of-apps.yaml       # App-of-apps Application
 │       ├── argocd-install.yaml    # ArgoCD self-management
 │       ├── cli-api.yaml           # CLI API external service
+│       ├── crossplane.yaml        # Crossplane installation
+│       ├── crossplane-config.yaml # Crossplane Azure configuration
+│       ├── crossplane/            # Crossplane provider configs
+│       ├── external-secrets-operator.yaml # External Secrets Operator
+│       ├── external-secrets/      # External Secrets configurations
 │       ├── fleet-manager-project.yaml # AppProject definition
 │       ├── grafana.yaml           # Grafana monitoring
 │       ├── metallb.yaml           # MetalLB LoadBalancer
@@ -38,9 +43,11 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 
 - **ArgoCD**: GitOps continuous delivery tool (self-managed)
 - **CLI API**: REST API for CLI command execution via Unix socket
+- **Crossplane**: Cloud-native control plane for infrastructure management
+- **External Secrets Operator**: Manages secrets from external systems (Azure Key Vault)
 - **Grafana**: Monitoring and observability dashboard
-- **Traefik**: Ingress controller and load balancer
 - **MetalLB**: LoadBalancer service provider
+- **Traefik**: Ingress controller and load balancer
 
 ### Cluster Configuration
 

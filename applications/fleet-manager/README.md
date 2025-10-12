@@ -14,17 +14,23 @@ The fleet-manager cluster is the control plane cluster that manages other cluste
 
 ### Applications
 
-- **ArgoCD**: GitOps continuous delivery tool
-- **Crossplane**: Cloud-native control plane for infrastructure management
-- **External Secrets Operator**: Manages secrets from external systems (Akeyless)
+- **ArgoCD**: GitOps continuous delivery tool (self-managed)
+- **Crossplane**: Cloud-native control plane for infrastructure management (Azure Key Vault integration)
+- **External Secrets Operator**: Manages secrets from external systems (Azure Key Vault)
 - **Grafana**: Monitoring and observability dashboard (via Helm chart)
-- **Prometheus**: Metrics collection and monitoring
+- **MetalLB**: LoadBalancer service provider
 - **Traefik**: Ingress controller and load balancer
 
 ### Files
 
-- `argocd-install.yaml` - ArgoCD installation via Helm chart
-- `crossplane.yaml` - ArgoCD Application for Crossplane (using Crossplane Helm chart)
+- `argocd-install.yaml` - ArgoCD installation via Helm chart (self-managed)
+- `crossplane.yaml` - Crossplane core installation via Helm chart
+- `crossplane-config.yaml` - Crossplane Azure Key Vault provider and configuration
+- `crossplane/` - Crossplane provider configurations and examples
 - `external-secrets-operator.yaml` - External Secrets Operator installation via Helm chart
-- `external-secrets-akeyless-store.yaml` - Akeyless integration configuration
-- `grafana.yaml` - ArgoCD Application for Grafana (using Grafana Helm chart)
+- `external-secrets-stores.yaml` - External Secrets stores (Azure Key Vault)
+- `external-secrets/` - External Secrets configurations and examples
+- `grafana.yaml` - Grafana installation via Helm chart
+- `metallb.yaml` - MetalLB installation
+- `metallb-config.yaml` - MetalLB IP address pool configuration
+- `traefik.yaml` - Traefik ingress controller installation
