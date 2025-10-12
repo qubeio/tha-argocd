@@ -12,6 +12,8 @@ spec:
     azurekv:
       # Azure Key Vault URL
       vaultUrl: "https://qubeio.vault.azure.net/"
+      # Authentication type
+      authType: ServicePrincipal
       # Authentication using service principal credentials
       authSecretRef:
         clientId:
