@@ -1,0 +1,87 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: azure-kv-example
+  namespace: default
+  labels:
+    app.kubernetes.io/part-of: external-secrets
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: azure-key-vault-secrets
+    kind: ClusterSecretStore
+  target:
+    name: azure-kv-example-secret
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      metadata:
+        labels:
+          app.kubernetes.io/part-of: external-secrets
+      data:
+        # Example: Get secrets from Azure Key Vault
+        github-token: "{{ .github_token }}"
+        api-key: "{{ .api_key }}"
+  data:
+    - secretKey: github_token
+      remoteRef:
+        key: github-token
+    - secretKey: api_key
+      remoteRef:
+        key: api-key
+
+---
+# Example ExternalSecret for getting individual secrets
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: azure-kv-individual-secrets
+  namespace: default
+  labels:
+    app.kubernetes.io/part-of: external-secrets
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: azure-key-vault-secrets
+    kind: ClusterSecretStore
+  target:
+    name: individual-secrets
+    creationPolicy: Owner
+  data:
+    # Get entire secret value (for simple key-value secrets)
+    - secretKey: github-token
+      remoteRef:
+        key: github-token
+    - secretKey: api-key
+      remoteRef:
+        key: api-key
+    - secretKey: slack-webhook
+      remoteRef:
+        key: slack-webhook
+    # Get specific property from a JSON secret
+    - secretKey: db-username
+      remoteRef:
+        key: database-credentials
+        property: username
+    - secretKey: db-password
+      remoteRef:
+        key: database-credentials
+        property: password
+    - secretKey: db-host
+      remoteRef:
+        key: database-credentials
+        property: host
+    - secretKey: db-port
+      remoteRef:
+        key: database-credentials
+        property: port
+    - secretKey: db-database
+      remoteRef:
+        key: database-credentials
+        property: database

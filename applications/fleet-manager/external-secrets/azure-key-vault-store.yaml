@@ -1,0 +1,32 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: azure-key-vault-secrets
+  labels:
+    app.kubernetes.io/part-of: external-secrets
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  provider:
+    azurekv:
+      # Azure Key Vault URL
+      vaultUrl: "https://qubeio.vault.azure.net/"
+      # Authentication using service principal credentials
+      authSecretRef:
+        clientId:
+          name: azure-keyvault-credentials
+          key: clientId
+          namespace: external-secrets-system
+        clientSecret:
+          name: azure-keyvault-credentials
+          key: clientSecret
+          namespace: external-secrets-system
+        tenantId:
+          name: azure-keyvault-credentials
+          key: tenantId
+          namespace: external-secrets-system
+      # Optional: Specify the secret type (defaults to "secret")
+      # secretType: "secret"
+      # Optional: Specify the environment (defaults to "AzurePublicCloud")
+      # environment: "AzurePublicCloud"

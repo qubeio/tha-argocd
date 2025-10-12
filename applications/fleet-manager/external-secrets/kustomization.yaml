@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - cluster-secret-store.yaml
   - example-external-secret.yaml
+  - azure-key-vault-store.yaml
+  - azure-key-vault-example.yaml
 
 # Optional: Add common labels to all resources
 commonLabels:
