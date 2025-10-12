@@ -12,11 +12,8 @@ spec:
     azurekv:
       # Azure Key Vault URL
       vaultUrl: "https://qubeio.vault.azure.net/"
-      # Tenant ID is required at the top level
-      tenantId:
-        name: azure-keyvault-credentials
-        key: tenantId
-        namespace: external-secrets-system
+      # Tenant ID is required at the top level (as direct string per docs)
+      tenantId: "f00d62a0-22a5-4ba4-9808-02e8228f5145"
       # Authentication using service principal credentials
       authSecretRef:
         clientId:
