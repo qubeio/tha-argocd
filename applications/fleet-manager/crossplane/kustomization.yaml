@@ -4,8 +4,7 @@ kind: Kustomization
 resources:
   - provider-azure.yaml
   - provider-config.yaml
-  # Uncomment to deploy example secret
-  # - example-secret.yaml
+  - example-secret.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: crossplane
