@@ -5,6 +5,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
+  subscriptionID: e8df3063-b677-4cb3-beb0-b1a1b542ec93
   credentials:
     source: Secret
     secretRef:
