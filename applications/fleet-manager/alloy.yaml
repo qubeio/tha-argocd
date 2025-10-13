@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alloy
+  namespace: argocd
+spec:
+  project: fleet-manager
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 1.3.0
+    chart: alloy
+    helm:
+      values: |
+        alloy:
+          configMap:
+            content: |
+              // Discover Kubernetes pods
+              discovery.kubernetes "pods" {
+                role = "pod"
+              }
+
+              // Process and relabel discovered targets
+              discovery.relabel "pods" {
+                targets = discovery.kubernetes.pods.targets
+
+                // Keep only running pods
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_phase"]
+                  action        = "keep"
+                  regex         = "Running"
+                }
+
+                // Add namespace label
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace"]
+                  target_label  = "namespace"
+                }
+
+                // Add pod name label
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_name"]
+                  target_label  = "pod"
+                }
+
+                // Add container name label
+                rule {
+                  source_labels = ["__meta_kubernetes_pod_container_name"]
+                  target_label  = "container"
+                }
+
+                // Set path to pod logs
+                rule {
+                  source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
+                  separator     = "/"
+                  target_label  = "__path__"
+                  replacement   = "/var/log/pods/*$1*/*/*.log"
+                }
+              }
+
+              // Tail log files and forward to Loki
+              loki.source.file "pods" {
+                targets    = discovery.relabel.pods.output
+                forward_to = [loki.write.loki.receiver]
+              }
+
+              // Write logs to Loki
+              loki.write "loki" {
+                endpoint {
+                  url = "http://loki.monitoring:3100/loki/api/v1/push"
+                }
+              }
+
+        # Deploy as DaemonSet to run on all nodes
+        controller:
+          type: "daemonset"
+
+        # Mount host paths to access pod logs
+        alloy:
+          mounts:
+            varlog: true  # Mount /var/log from host
+
+        # Resource limits
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        # Service account with permissions to discover pods
+        serviceAccount:
+          create: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+

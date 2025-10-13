@@ -21,6 +21,18 @@ spec:
         - name: loki.auth_enabled
           value: "false"
         
+        # Schema configuration (required)
+        - name: loki.schemaConfig.configs[0].from
+          value: "2020-05-15"
+        - name: loki.schemaConfig.configs[0].store
+          value: "boltdb-shipper"
+        - name: loki.schemaConfig.configs[0].object_store
+          value: "filesystem"
+        - name: loki.schemaConfig.configs[0].schema
+          value: "v11"
+        - name: loki.schemaConfig.configs[0].index.prefix
+          value: "index_"
+        
         # Storage configuration
         - name: loki.storage.type
           value: "filesystem"
