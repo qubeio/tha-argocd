@@ -23,22 +23,26 @@ spec:
           value: "admin"
         
         # Data sources configuration
-        - name: datasources.datasources.yaml.apiVersion
+        - name: datasources[datasources__dot__yaml].apiVersion
           value: "1"
-        - name: datasources.datasources.yaml.datasources[0].name
+        - name: datasources[datasources__dot__yaml].datasources[0].name
           value: "Prometheus"
-        - name: datasources.datasources.yaml.datasources[0].type
+        - name: datasources[datasources__dot__yaml].datasources[0].type
           value: "prometheus"
-        - name: datasources.datasources.yaml.datasources[0].url
+        - name: datasources[datasources__dot__yaml].datasources[0].url
           value: "http://kube-prometheus-stack-prometheus.monitoring:9090"
-        - name: datasources.datasources.yaml.datasources[0].isDefault
+        - name: datasources[datasources__dot__yaml].datasources[0].access
+          value: "proxy"
+        - name: datasources[datasources__dot__yaml].datasources[0].isDefault
           value: "true"
-        - name: datasources.datasources.yaml.datasources[1].name
+        - name: datasources[datasources__dot__yaml].datasources[1].name
           value: "Loki"
-        - name: datasources.datasources.yaml.datasources[1].type
+        - name: datasources[datasources__dot__yaml].datasources[1].type
           value: "loki"
-        - name: datasources.datasources.yaml.datasources[1].url
+        - name: datasources[datasources__dot__yaml].datasources[1].url
           value: "http://loki.monitoring:3100"
+        - name: datasources[datasources__dot__yaml].datasources[1].access
+          value: "proxy"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
