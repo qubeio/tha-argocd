@@ -32,6 +32,18 @@ spec:
           value: "v11"
         - name: loki.schemaConfig.configs[0].index.prefix
           value: "index_"
+        - name: loki.schemaConfig.configs[0].index.period
+          value: "24h"
+        
+        # Compactor configuration (required for retention)
+        - name: loki.compactor.delete_request_store
+          value: "boltdb-shipper"
+        - name: loki.compactor.delete_request_store_prefix
+          value: "delete_requests_table_"
+        
+        # Disable structured metadata for v11 compatibility
+        - name: loki.limits_config.allow_structured_metadata
+          value: "false"
         
         # Storage configuration
         - name: loki.storage.type
