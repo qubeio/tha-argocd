@@ -87,12 +87,12 @@ spec:
         - name: loki.server.http_listen_port
           value: "3100"
         
-        # Ingress configuration for external access
-        - name: singleBinary.ingress.enabled
+        # Ingress configuration for external access (main ingress, not gateway)
+        - name: ingress.enabled
           value: "true"
-        - name: singleBinary.ingress.ingressClassName
+        - name: ingress.ingressClassName
           value: "traefik"
-        - name: singleBinary.ingress.hosts[0]
+        - name: ingress.hosts[0]
           value: "loki.test"
         
   destination:
