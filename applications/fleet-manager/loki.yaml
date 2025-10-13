@@ -1,0 +1,75 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+spec:
+  project: fleet-manager
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 6.42.0
+    chart: loki
+    helm:
+      parameters:
+        # Deploy in single-binary (monolithic) mode
+        - name: deploymentMode
+          value: "SingleBinary"
+        - name: loki.commonConfig.replication_factor
+          value: "1"
+        
+        # Authentication
+        - name: loki.auth_enabled
+          value: "false"
+        
+        # Storage configuration
+        - name: loki.storage.type
+          value: "filesystem"
+        - name: singleBinary.persistence.enabled
+          value: "true"
+        - name: singleBinary.persistence.storageClass
+          value: "standard"
+        - name: singleBinary.persistence.size
+          value: "20Gi"
+        
+        # Retention configuration (30 days)
+        - name: loki.limits_config.retention_period
+          value: "720h"
+        - name: loki.compactor.retention_enabled
+          value: "true"
+        - name: loki.compactor.retention_delete_delay
+          value: "2h"
+        - name: loki.compactor.working_directory
+          value: "/var/loki/compactor"
+        
+        # Resource limits
+        - name: singleBinary.resources.requests.memory
+          value: "256Mi"
+        - name: singleBinary.resources.requests.cpu
+          value: "100m"
+        - name: singleBinary.resources.limits.memory
+          value: "1Gi"
+        - name: singleBinary.resources.limits.cpu
+          value: "500m"
+        
+        # Disable components not needed in single-binary mode
+        - name: read.replicas
+          value: "0"
+        - name: write.replicas
+          value: "0"
+        - name: backend.replicas
+          value: "0"
+        
+        # Service configuration (accessible at loki.monitoring:3100)
+        - name: loki.server.http_listen_port
+          value: "3100"
+        
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
