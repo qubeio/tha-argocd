@@ -21,6 +21,24 @@ spec:
           value: "grafana.test"
         - name: adminPassword
           value: "admin"
+        
+        # Data sources configuration
+        - name: datasources.datasources.yaml.apiVersion
+          value: "1"
+        - name: datasources.datasources.yaml.datasources[0].name
+          value: "Prometheus"
+        - name: datasources.datasources.yaml.datasources[0].type
+          value: "prometheus"
+        - name: datasources.datasources.yaml.datasources[0].url
+          value: "http://kube-prometheus-stack-prometheus.monitoring:9090"
+        - name: datasources.datasources.yaml.datasources[0].isDefault
+          value: "true"
+        - name: datasources.datasources.yaml.datasources[1].name
+          value: "Loki"
+        - name: datasources.datasources.yaml.datasources[1].type
+          value: "loki"
+        - name: datasources.datasources.yaml.datasources[1].url
+          value: "http://loki.monitoring:3100"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
