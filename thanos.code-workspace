@@ -10,10 +10,10 @@
       "path": "../infraascode"
     },
     {
-      "path": "../provider-template"
+      "path": "../provider-pizza"
     },
     {
-      "path": "../provider-pizza"
+      "path": "../provider-kind"
     }
   ],
   "settings": {}
