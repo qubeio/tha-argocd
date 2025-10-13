@@ -75,12 +75,30 @@ spec:
         - name: singleBinary.resources.limits.cpu
           value: "500m"
         
-        # Disable components not needed in single-binary mode
+        # Disable ALL microservice components for single-binary mode
         - name: read.replicas
           value: "0"
         - name: write.replicas
           value: "0"
         - name: backend.replicas
+          value: "0"
+        - name: ingester.replicas
+          value: "0"
+        - name: querier.replicas
+          value: "0"
+        - name: queryFrontend.replicas
+          value: "0"
+        - name: queryScheduler.replicas
+          value: "0"
+        - name: distributor.replicas
+          value: "0"
+        - name: compactor.replicas
+          value: "0"
+        - name: indexGateway.replicas
+          value: "0"
+        - name: bloomCompactor.replicas
+          value: "0"
+        - name: bloomGateway.replicas
           value: "0"
         
         # Service configuration (accessible at loki.monitoring:3100)
