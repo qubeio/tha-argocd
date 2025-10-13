@@ -21,28 +21,20 @@ spec:
           value: "grafana.test"
         - name: adminPassword
           value: "admin"
-        
-        # Data sources configuration
-        - name: datasources[datasources__dot__yaml].apiVersion
-          value: "1"
-        - name: datasources[datasources__dot__yaml].datasources[0].name
-          value: "Prometheus"
-        - name: datasources[datasources__dot__yaml].datasources[0].type
-          value: "prometheus"
-        - name: datasources[datasources__dot__yaml].datasources[0].url
-          value: "http://kube-prometheus-stack-prometheus.monitoring:9090"
-        - name: datasources[datasources__dot__yaml].datasources[0].access
-          value: "proxy"
-        - name: datasources[datasources__dot__yaml].datasources[0].isDefault
-          value: "true"
-        - name: datasources[datasources__dot__yaml].datasources[1].name
-          value: "Loki"
-        - name: datasources[datasources__dot__yaml].datasources[1].type
-          value: "loki"
-        - name: datasources[datasources__dot__yaml].datasources[1].url
-          value: "http://loki.monitoring:3100"
-        - name: datasources[datasources__dot__yaml].datasources[1].access
-          value: "proxy"
+      values: |
+        datasources:
+          datasources.yaml: |
+            apiVersion: 1
+            datasources:
+              - name: Prometheus
+                type: prometheus
+                access: proxy
+                url: http://kube-prometheus-stack-prometheus.monitoring:9090
+                isDefault: true
+              - name: Loki
+                type: loki
+                access: proxy
+                url: http://loki.monitoring:3100
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
