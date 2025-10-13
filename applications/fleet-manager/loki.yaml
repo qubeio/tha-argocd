@@ -37,7 +37,7 @@ spec:
         
         # Compactor configuration (required for retention)
         - name: loki.compactor.delete_request_store
-          value: "boltdb-shipper"
+          value: "filesystem"
         
         # Disable structured metadata for v11 compatibility
         - name: loki.limits_config.allow_structured_metadata
