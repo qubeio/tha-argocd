@@ -75,6 +75,14 @@ spec:
         - name: loki.server.http_listen_port
           value: "3100"
         
+        # Ingress configuration for external access
+        - name: singleBinary.ingress.enabled
+          value: "true"
+        - name: singleBinary.ingress.ingressClassName
+          value: "traefik"
+        - name: singleBinary.ingress.hosts[0]
+          value: "loki.test"
+        
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
