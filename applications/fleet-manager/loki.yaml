@@ -101,6 +101,10 @@ spec:
         - name: bloomGateway.replicas
           value: "0"
         
+        # Disable gateway (use main ingress instead)
+        - name: gateway.enabled
+          value: "false"
+        
         # Service configuration (accessible at loki.monitoring:3100)
         - name: loki.server.http_listen_port
           value: "3100"
