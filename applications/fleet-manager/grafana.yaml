@@ -11,9 +11,9 @@ spec:
       chart: grafana
       helm:
         valueFiles:
-          - $values/argo/applications/fleet-manager/values/grafana/ingress.yaml
-          - $values/argo/applications/fleet-manager/values/grafana/auth.yaml
-          - $values/argo/applications/fleet-manager/values/grafana/datasources.yaml
+          - $values/applications/fleet-manager/values/grafana/ingress.yaml
+          - $values/applications/fleet-manager/values/grafana/auth.yaml
+          - $values/applications/fleet-manager/values/grafana/datasources.yaml
     - repoURL: https://github.com/qubeio/tha-argocd.git
       targetRevision: HEAD
       ref: values
