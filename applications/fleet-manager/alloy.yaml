@@ -14,51 +14,37 @@ spec:
         alloy:
           configMap:
             content: |
-              // Discover Kubernetes pods
-              discovery.kubernetes "pods" {
-                role = "pod"
+              // Discover all pod log files
+              local.file_match "pod_logs" {
+                path_targets = [{
+                  __path__ = "/var/log/pods/*/*/*.log"
+                }]
               }
 
-              // Process and relabel discovered targets
-              discovery.relabel "pods" {
-                targets = discovery.kubernetes.pods.targets
-
-                // Keep only running pods
-                rule {
-                  source_labels = ["__meta_kubernetes_pod_phase"]
-                  action        = "keep"
-                  regex         = "Running"
-                }
-
-                // Add namespace label
-                rule {
-                  source_labels = ["__meta_kubernetes_namespace"]
-                  target_label  = "namespace"
-                }
-
-                // Add pod name label
-                rule {
-                  source_labels = ["__meta_kubernetes_pod_name"]
-                  target_label  = "pod"
-                }
-
-                // Add container name label
-                rule {
-                  source_labels = ["__meta_kubernetes_pod_container_name"]
-                  target_label  = "container"
-                }
-
-                // Set path to pod logs using pod UID
-                rule {
-                  source_labels = ["__meta_kubernetes_pod_uid"]
-                  target_label  = "__path__"
-                  replacement   = "/var/log/pods/*$1/*/*.log"
-                }
+              // Tail discovered log files and forward to Loki
+              loki.source.file "pod_logs" {
+                targets    = local.file_match.pod_logs.targets
+                forward_to = [loki.process.add_labels.receiver]
               }
 
-              // Tail log files and forward to Loki
-              loki.source.file "pods" {
-                targets    = discovery.relabel.pods.output
+              // Extract labels from log file path
+              loki.process "add_labels" {
+                // Extract namespace, pod name, and container from path
+                // Path format: /var/log/pods/<namespace>_<pod>_<uid>/<container>/<file>.log
+                stage.regex {
+                  expression = "^/var/log/pods/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_[^/]+/(?P<container>[^/]+)/.*\\.log$"
+                  source     = "filename"
+                }
+
+                // Add extracted labels
+                stage.labels {
+                  values = {
+                    namespace = "",
+                    pod       = "pod_name",
+                    container = "",
+                  }
+                }
+
                 forward_to = [loki.write.loki.receiver]
               }
 
