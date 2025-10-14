@@ -70,14 +70,13 @@ spec:
                 }
               }
 
+          # Mount host paths to access pod logs
+          mounts:
+            varlog: true  # Mount /var/log from host
+
         # Deploy as DaemonSet to run on all nodes
         controller:
           type: "daemonset"
-
-        # Mount host paths to access pod logs
-        alloy:
-          mounts:
-            varlog: true  # Mount /var/log from host
 
         # Resource limits
         resources:
