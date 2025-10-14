@@ -17,7 +17,7 @@ spec:
               // Discover all pod log files
               local.file_match "pod_logs" {
                 path_targets = [{
-                  __path__ = "/var/log/pods/*/*/*.log"
+                  __path__ = "/var/log/pods/*/*/*.log",
                 }]
               }
 
