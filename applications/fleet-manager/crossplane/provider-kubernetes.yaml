@@ -5,7 +5,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  package: xpkg.upbound.io/upbound/provider-kubernetes:v1.0.0
+  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v1.0.0
   packagePullPolicy: IfNotPresent
   revisionActivationPolicy: Automatic
   revisionHistoryLimit: 1

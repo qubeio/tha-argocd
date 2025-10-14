@@ -1,7 +1,8 @@
-apiVersion: kubernetes.m.crossplane.io/v1beta1
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
 kind: ProviderConfig
 metadata:
   name: default
+  namespace: crossplane-system
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
