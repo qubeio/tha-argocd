@@ -1,0 +1,45 @@
+---
+# RBAC for Crossplane to manage provider-kind Cluster resources
+#
+# The Crossplane controller needs permission to manage custom resources
+# from provider-kind (Cluster resources). This ClusterRole grants those
+# permissions to the crossplane service account.
+#
+# This is required for compositions that create Cluster resources.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crossplane-provider-kind-access
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: rbac
+rules:
+- apiGroups:
+  - core.kind.crossplane.io
+  resources:
+  - clusters
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crossplane-provider-kind-access
+  labels:
+    app.kubernetes.io/name: crossplane
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crossplane-provider-kind-access
+subjects:
+- kind: ServiceAccount
+  name: crossplane
+  namespace: crossplane-system
+

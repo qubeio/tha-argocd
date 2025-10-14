@@ -6,6 +6,7 @@ resources:
   - provider-kubernetes.yaml
   - provider-config.yaml
   - provider-config-kubernetes.yaml
+  - rbac.yaml                # RBAC for provider-kind Cluster resources
   - example-k8s-secret.yaml  # Source Kubernetes Secret
   - example-secret.yaml      # Crossplane Secret that syncs to Azure
   - xrds
