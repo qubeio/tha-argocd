@@ -1,0 +1,11 @@
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: ProviderConfig
+metadata:
+  name: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  # Use the cluster's service account for authentication
+  # This allows the provider to use the same permissions as the CrossPlane controller
+  credentials:
+    source: InjectedIdentity

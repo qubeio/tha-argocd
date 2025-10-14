@@ -8,11 +8,20 @@ Crossplane is configured to use the Azure Provider to manage secrets in the `qub
 
 ## Components
 
-### 1. Provider Installation (`provider-azure.yaml`)
+### 1. Provider Installation
+
+#### Azure Provider (`provider-azure.yaml`)
 
 Installs the Upbound Azure Key Vault provider for Crossplane. This provider enables Crossplane to manage Azure Key Vault resources.
 
 - **Provider**: `xpkg.upbound.io/upbound/provider-azure-keyvault:v1.4.0`
+- **Sync Wave**: 2 (installs after Crossplane core)
+
+#### Kubernetes Provider (`provider-kubernetes.yaml`)
+
+Installs the CrossPlane Kubernetes provider for managing Kubernetes resources. This provider enables CrossPlane to create and manage Kubernetes objects like ConfigMaps, Secrets, Deployments, etc.
+
+- **Provider**: `xpkg.upbound.io/upbound/provider-kubernetes:v1.0.0`
 - **Sync Wave**: 2 (installs after Crossplane core)
 
 ### 2. Credential Setup (`setup-credentials.sh`)
@@ -33,12 +42,22 @@ cd applications/fleet-manager/crossplane
 
 **Note**: Run this once before deploying the Crossplane configuration. In production, credentials would be managed outside of GitOps.
 
-### 3. Provider Configuration (`provider-config.yaml`)
+### 3. Provider Configuration
+
+#### Azure Provider Config (`provider-config.yaml`)
 
 Configures the Azure provider with authentication credentials.
 
 - **ProviderConfig Name**: `default` (used by all Azure resources unless specified)
 - **Credentials Source**: Secret reference to `azure-keyvault-crossplane-creds` (created manually)
+- **Sync Wave**: 3 (after provider installation)
+
+#### Kubernetes Provider Config (`provider-config-kubernetes.yaml`)
+
+Configures the Kubernetes provider with authentication using the cluster's service account.
+
+- **ProviderConfig Name**: `default` (used by all Kubernetes resources unless specified)
+- **Credentials Source**: `InjectedIdentity` (uses CrossPlane's service account permissions)
 - **Sync Wave**: 3 (after provider installation)
 
 ### 4. Example Resources (`example-secret.yaml`)
@@ -149,6 +168,68 @@ spec:
       name: source-secret
       namespace: my-namespace
       key: password
+  providerConfigRef:
+    name: default
+```
+
+### Using the Kubernetes Provider
+
+The Kubernetes provider allows CrossPlane to manage Kubernetes resources. Here are some examples:
+
+#### Creating a ConfigMap
+
+```yaml
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  name: my-configmap
+  namespace: my-namespace
+spec:
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: my-configmap
+        namespace: my-namespace
+      data:
+        key1: value1
+        key2: value2
+  providerConfigRef:
+    name: default
+```
+
+#### Creating a Deployment
+
+```yaml
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  name: my-deployment
+  namespace: my-namespace
+spec:
+  forProvider:
+    manifest:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: my-deployment
+        namespace: my-namespace
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: my-app
+        template:
+          metadata:
+            labels:
+              app: my-app
+          spec:
+            containers:
+            - name: my-app
+              image: nginx:latest
+              ports:
+              - containerPort: 80
   providerConfigRef:
     name: default
 ```

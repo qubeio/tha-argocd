@@ -1,0 +1,193 @@
+# Simplified Composition - Kind Cluster with Argo CD Registration
+#
+# This composition creates a Kind cluster and automatically registers it
+# with Argo CD by copying the kubeconfig secret to an Argo CD cluster secret.
+#
+# Your provider outputs a secret with:
+#   - data.kubeconfig: full kubeconfig (base64)
+#   - data.endpoint: API server URL (base64)
+#
+# Argo CD needs:
+#   - data.config: kubeconfig (base64) - SAME as your kubeconfig!
+#   - stringData.server: API server URL (plain text)
+#   - stringData.name: cluster display name
+#
+# This composition just copies fields - no complex transformation needed!
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: kind-with-argocd-simple
+  labels:
+    provider: kind
+    integration: argocd
+    variant: simple
+spec:
+  compositeTypeRef:
+    apiVersion: composed.kind.crossplane.io/v1alpha1
+    kind: XKindCluster
+  
+  writeConnectionSecretsToNamespace: crossplane-system
+  
+  resources:
+    # 1. Create the Kind cluster
+    - name: kind-cluster
+      base:
+        apiVersion: core.kind.crossplane.io/v1alpha1
+        kind: Cluster
+        spec:
+          forProvider:
+            name: ""
+          
+          providerConfigRef:
+            name: default
+          
+          # Write kubeconfig to argocd namespace
+          # This makes it easy to reference from the Argo CD secret
+          writeConnectionSecretToRef:
+            name: ""
+            namespace: argocd
+          
+          deletionPolicy: Delete
+      
+      patches:
+        # Patch cluster name from XR parameter
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.name
+          toFieldPath: spec.forProvider.name
+        
+        # Patch kubeconfig secret name: {name}-kubeconfig
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.name
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-kubeconfig"
+        
+        # Copy status back to XR for visibility
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.status
+          toFieldPath: status.clusterStatus
+        
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.endpoint
+          toFieldPath: status.endpoint
+        
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.homelabIp
+          toFieldPath: status.homelabIp
+      
+      # Expose connection details to the XR
+      connectionDetails:
+        - type: FromConnectionSecretKey
+          name: kubeconfig
+          fromConnectionSecretKey: kubeconfig
+        - type: FromConnectionSecretKey
+          name: endpoint
+          fromConnectionSecretKey: endpoint
+        - type: FromConnectionSecretKey
+          name: server
+          fromConnectionSecretKey: server
+    
+    # 2. Create Argo CD cluster secret
+    #    Uses provider-kubernetes to create a secret in Argo CD format
+    - name: argocd-cluster-secret
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha2
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: ""  # Patched below
+                namespace: argocd
+                labels:
+                  argocd.argoproj.io/secret-type: cluster
+                  managed-by: crossplane
+              type: Opaque
+              stringData:
+                # Cluster display name in Argo CD UI
+                name: ""
+                # API server URL (plain text)
+                server: ""
+              # data.config will be patched from the kubeconfig secret
+              # using the references field below
+          
+          providerConfigRef:
+            name: default
+          
+          # Reference the kubeconfig secret and copy data.kubeconfig to data.config
+          # This is a direct copy - no transformation needed!
+          references:
+            - patchesFrom:
+                apiVersion: v1
+                kind: Secret
+                name: ""  # Patched below to match kubeconfig secret
+                namespace: argocd
+                fieldPath: data.kubeconfig  # Your provider's field
+              toFieldPath: spec.forProvider.manifest.data.config  # Argo CD's field
+      
+      patches:
+        # Argo CD secret name: cluster-{name}
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.name
+          toFieldPath: spec.forProvider.manifest.metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "cluster-%s"
+        
+        # Cluster display name for Argo CD UI
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.name
+          toFieldPath: spec.forProvider.manifest.stringData.name
+        
+        # API server URL (from XR status - already a string, not base64)
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.endpoint
+          toFieldPath: spec.forProvider.manifest.stringData.server
+          policy:
+            fromFieldPath: Required
+        
+        # Reference: source kubeconfig secret name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.name
+          toFieldPath: spec.references[0].patchesFrom.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-kubeconfig"
+        
+        # Add custom labels if provided
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.argocd.clusterLabels
+          toFieldPath: spec.forProvider.manifest.metadata.labels
+          policy:
+            fromFieldPath: Optional
+            mergeOptions:
+              keepMapValues: true
+
+---
+# How This Works:
+#
+# 1. Your provider creates: my-cluster-kubeconfig secret
+#    Contains: data.kubeconfig (full kubeconfig, base64)
+#              data.endpoint (server URL, base64)
+#
+# 2. provider-kubernetes watches that secret via references
+#
+# 3. provider-kubernetes copies:
+#    data.kubeconfig → data.config (verbatim copy!)
+#
+# 4. provider-kubernetes creates: cluster-my-cluster secret
+#    Contains: data.config (kubeconfig from step 3)
+#              stringData.name (cluster name)
+#              stringData.server (from status.endpoint)
+#              labels: argocd.argoproj.io/secret-type=cluster
+#
+# 5. Argo CD sees the secret with the label and registers the cluster!
+#
+# NO FUNCTIONS NEEDED - just field copying! ✅

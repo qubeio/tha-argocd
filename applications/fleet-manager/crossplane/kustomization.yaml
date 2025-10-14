@@ -3,9 +3,13 @@ kind: Kustomization
 
 resources:
   - provider-azure.yaml
+  - provider-kubernetes.yaml
   - provider-config.yaml
+  - provider-config-kubernetes.yaml
   - example-k8s-secret.yaml  # Source Kubernetes Secret
   - example-secret.yaml      # Crossplane Secret that syncs to Azure
+  - xrds
+  - compositions
 
 commonLabels:
   app.kubernetes.io/part-of: crossplane
