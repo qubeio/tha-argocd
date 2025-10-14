@@ -1,4 +1,4 @@
-apiVersion: kubernetes.crossplane.io/v1beta1
+apiVersion: kubernetes.m.crossplane.io/v1beta1
 kind: ProviderConfig
 metadata:
   name: default
