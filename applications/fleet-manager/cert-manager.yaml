@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: fleet-manager
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.13.3
+    helm:
+      values: |
+        installCRDs: true
+        global:
+          leaderElection:
+            namespace: cert-manager
+        webhook:
+          timeoutSeconds: 4
+        cainjector:
+          timeoutSeconds: 4
+        startupapicheck:
+          timeoutSeconds: 4
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
