@@ -22,7 +22,7 @@ spec:
     - match: Host(`traefik.test`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: test-service
-          port: 9000
+        - name: api@internal
+          kind: TraefikService
   tls:
     secretName: test-wildcard-mkcert

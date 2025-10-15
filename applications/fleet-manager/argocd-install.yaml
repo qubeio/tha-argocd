@@ -29,10 +29,11 @@ spec:
             hostname: argocd.test
             path: /
             pathType: Prefix
-            tls: []
+            tls:
+              - secretName: test-wildcard-mkcert
         configs:
           cm:
-            url: http://argocd.test
+            url: https://argocd.test
             application.instanceLabelKey: argocd.argoproj.io/instance
             # Custom health checks for Ingress resources
             resource.customizations: |
