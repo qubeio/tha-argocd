@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`traefik.test`)
+    - match: Host(`traefik.test`) && PathPrefix(`/`)
       kind: Rule
       services:
         - name: api@internal
@@ -24,7 +24,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`traefik.test`)
+    - match: Host(`traefik.test`) && PathPrefix(`/`)
       kind: Rule
       services:
         - name: api@internal
