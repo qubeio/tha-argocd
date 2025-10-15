@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-test-cluster-app-of-apps
+  namespace: argocd
+  # Ensure this application persists even if removed from Git
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default # You may want to create a dedicated project later
+  source:
+    repoURL: https://github.com/qubeio/tha-argocd.git
+    targetRevision: HEAD
+    path: applications/my-test-cluster
+    directory:
+      # Only include application manifests, exclude bootstrap resources
+      include: "*.yaml"
+      exclude: "{app-of-apps.yaml}"
+  destination:
+    server: my-test-cluster # Reference the cluster by name as registered in ArgoCD
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
