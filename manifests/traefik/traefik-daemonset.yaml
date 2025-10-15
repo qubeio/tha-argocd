@@ -36,10 +36,12 @@ rules:
         "ingressroutetcps",
         "ingressrouteudps",
         "middlewares",
+        "middlewaretcps",
         "tlsoptions",
         "tlsstores",
         "traefikservices",
         "serverstransports",
+        "serverstransporttcps",
       ]
     verbs: ["get", "list", "watch"]
 ---
@@ -87,8 +89,17 @@ spec:
             - "--providers.kubernetesingress.allowexternalnameservices=true"
             - "--providers.kubernetescrd=true"
             - "--providers.kubernetescrd.allowCrossNamespace=true"
+            - "--providers.file.filename=/etc/traefik/dynamic.yaml"
+            - "--providers.file.watch=true"
             - "--entrypoints.traefik.address=:9000"
             - "--api.insecure=true"
+          volumeMounts:
+            - name: certs
+              mountPath: /etc/certs
+              readOnly: true
+            - name: dynamic-config
+              mountPath: /etc/traefik
+              readOnly: true
           ports:
             - name: web
               containerPort: 80
@@ -106,3 +117,10 @@ spec:
               port: 9000
             initialDelaySeconds: 15
             periodSeconds: 20
+      volumes:
+        - name: certs
+          secret:
+            secretName: test-wildcard-mkcert
+        - name: dynamic-config
+          configMap:
+            name: traefik-dynamic-config
