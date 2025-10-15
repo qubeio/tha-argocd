@@ -29,8 +29,11 @@ spec:
             hostname: argocd.test
             path: /
             pathType: Prefix
-            tls:
-              - secretName: test-wildcard-mkcert
+            tls: true
+            extraTls:
+              - hosts:
+                  - argocd.test
+                secretName: test-wildcard-mkcert
         configs:
           cm:
             url: https://argocd.test
