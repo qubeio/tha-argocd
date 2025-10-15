@@ -49,6 +49,8 @@ spec:
             # Admin password: admin123 (bcrypt hashed)
             argocdServerAdminPassword: $2a$10$dgzMusvV67nY0NU3A/eQvOG2Pw6WplJ6p/h1hrR8E.fAGv8cA7Axy
             argocdServerAdminPasswordMtime: "2025-10-05T00:00:00Z"
+            # Server secret key for encrypting session information
+            serverSecretKey: dlZ5UE1qdlZZdHhXYlVyLy9GVkkzT0RNRktBWWxLM2xyOUpXcDdoWVRSdz0K
           params:
             server.insecure: true
           rbac:
